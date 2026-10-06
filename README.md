@@ -30,7 +30,7 @@ Demo notes ("How Memory Works") are included so the whole flow can be tried befo
 ## Run it with XAMPP
 
 1. Start **Apache** in the XAMPP Control Panel.
-2. Open <http://localhost/Mahfuz/part-time/study-app/>.
+2. Open <http://localhost/path/study-app/>.
 3. Create your owner account (first visit only). Then **Add notes**, or **Load demo notes**.
 
 Requirements: PHP 8.2+ with `pdo_sqlite` and `curl` (XAMPP has both) and the Composer packages in `vendor/`

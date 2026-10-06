@@ -113,9 +113,20 @@ test('signed out: the app redirects to sign-in and the API refuses requests', as
 });
 
 test('private files are never served', async () => {
-  for (const path of ['/src/Db.php', '/data/study.sqlite', '/vendor/autoload.php', '/.env.example', '/composer.json']) {
-    // 404 from PHP's built-in server (outside public/), 403 from Apache's deny rules.
-    assert.ok([403, 404].includes((await b.request('GET', path)).status), path);
+  // Servers differ in how they refuse (Apache: 403; PHP's built-in server: 404, or since 8.4 the
+  // app's own sign-in redirect), so check that no private file's contents ever come back.
+  const secrets = {
+    '/src/Db.php': 'final class Db',
+    '/src/bootstrap.php': 'APP_ROOT',
+    '/data/study.sqlite': 'SQLite format 3',
+    '/vendor/autoload.php': 'ComposerAutoloader',
+    '/.env.example': 'ANTHROPIC_API_KEY=',
+    '/composer.json': '"anthropic-ai/sdk"',
+  };
+  for (const [path, marker] of Object.entries(secrets)) {
+    const r = await b.request('GET', path);
+    assert.ok(!r.body.includes(marker), `${path} was served (HTTP ${r.status})`);
+    assert.notEqual(r.status, 200, `${path} answered 200`);
   }
 });
 

@@ -160,9 +160,12 @@ To run the published image on any Docker host:
 docker run -d -p 8080:8080 -v study-data:/app/data -e ANTHROPIC_API_KEY=your-key ghcr.io/mahfuzt786/living-study-guide:latest
 ```
 
-Mount `/app/data` on a volume, or the database is lost when the container is replaced. While the repository is
-private, the image is private too, so run `docker login ghcr.io` first with a personal access token that has the
-`read:packages` scope.
+Mount `/app/data` on a volume, or the database is lost when the container is replaced.
+
+The image's visibility is set separately from the repository's. GitHub published the first image as **public**
+even though this repository is private, so it was switched to private under the package's **Package settings →
+Danger Zone**, and later pushes keep that setting. To pull it, first run `docker login ghcr.io` with a personal
+access token that has the `read:packages` scope. If you ever recreate the package, check its visibility again.
 
 ## Submitting to Handshake
 

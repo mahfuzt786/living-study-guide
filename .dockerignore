@@ -1,0 +1,12 @@
+# Never bake local data, secrets or dev-only files into the image.
+.git
+.github
+vendor
+data/*
+!data/.htaccess
+.env
+tests
+dist
+README.md
+Dockerfile
+.dockerignore

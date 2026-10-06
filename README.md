@@ -105,7 +105,64 @@ src/               PHP: Db, Auth, Sources, Items, Study, Dashboard, Backup,
                    ClaudeExtractor, LocalExtractor, Text (excerpt matching), CurlHttpClient
 data/              study.sqlite (created on first run)
 demo/              demo notes
+tests/             unit.php, smoke.test.mjs (end-to-end), ui.test.mjs (browser-side checks)
+.github/workflows/ ci.yml and cd.yml
+Dockerfile         container image used by CD
 ```
+
+## Tests
+
+```bash
+composer test
+```
+
+This runs `tests/unit.php` (excerpt matching, chunking, the offline extractor), then `tests/smoke.test.mjs`
+with Node. The smoke test starts the app on a free port with a throwaway database and uses it like a browser:
+first-run sign-up, demo notes, the review queue, study modes, making your own card, backup and restore,
+signing out, and the sign-in lockout. It never calls the Claude API. The browser-side checks (the
+"words not in your notes" logic) run with:
+
+```bash
+node --test tests/ui.test.mjs
+```
+
+The smoke test is JavaScript rather than PHP on purpose: Norton removed a PHP version of it from this
+machine, because a PHP file under a web folder that starts processes and opens connections looks like a web
+shell.
+
+## CI/CD (GitHub Actions)
+
+- **CI** (`.github/workflows/ci.yml`) runs on every pull request and every push to a branch other than `main`:
+  - PHP 8.2, 8.3 and 8.4: `composer validate`, a lint of every PHP file, the unit tests and the end-to-end
+    smoke test.
+  - JavaScript: a syntax check of every browser module, plus the Node unit tests.
+  - Docker: builds the image, starts a container and checks that it serves the sign-in page.
+- **CD** (`.github/workflows/cd.yml`) runs on every push to `main` and on version tags. It runs the full CI
+  first, then delivers:
+  - Each push to `main` publishes the container image to GitHub Container Registry as
+    `ghcr.io/mahfuzt786/living-study-guide`, tagged `latest` and `sha-<commit>`.
+  - A tag such as `v1.0.0` also publishes the image as `1.0.0` and creates a GitHub release with
+    `living-study-guide-v1.0.0.zip`. That zip contains the code plus production dependencies, ready to unzip
+    into XAMPP or shared hosting.
+
+  Both use the workflow's built-in `GITHUB_TOKEN`, so no secrets need to be configured.
+
+To cut a release:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+To run the published image on any Docker host:
+
+```bash
+docker run -d -p 8080:8080 -v study-data:/app/data -e ANTHROPIC_API_KEY=your-key ghcr.io/mahfuzt786/living-study-guide:latest
+```
+
+Mount `/app/data` on a volume, or the database is lost when the container is replaced. While the repository is
+private, the image is private too, so run `docker login ghcr.io` first with a personal access token that has the
+`read:packages` scope.
 
 ## Submitting to Handshake
 

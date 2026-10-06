@@ -2,9 +2,11 @@
     "name": "mahfuz/living-study-guide",
     "description": "A private study guide that drafts flashcards from your notes and waits for your approval.",
     "type": "project",
+    "license": "proprietary",
     "require": {
         "php": ">=8.2",
         "ext-curl": "*",
+        "ext-mbstring": "*",
         "ext-pdo_sqlite": "*",
         "anthropic-ai/sdk": "^0.54",
         "guzzlehttp/guzzle": "^8.2"
@@ -13,6 +15,15 @@
         "psr-4": {
             "StudyApp\\": "src/"
         }
+    },
+    "scripts": {
+        "test": [
+            "@php tests/unit.php",
+            "node --test tests/smoke.test.mjs"
+        ]
+    },
+    "scripts-descriptions": {
+        "test": "Run the unit tests, then an end-to-end smoke test against a temporary local server."
     },
     "config": {
         "sort-packages": true

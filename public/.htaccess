@@ -1,0 +1,9 @@
+Options -Indexes
+DirectoryIndex index.php
+
+# Always revalidate scripts and styles so an updated app never runs stale modules.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css|svg)$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>

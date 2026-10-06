@@ -1,0 +1,18 @@
+# Apache (XAMPP) configuration for the study guide.
+# Only public/ is served; code (src/), the database (data/), vendor/ and .env stay private.
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(?!public/)(.*)$ public/$1 [L]
+</IfModule>
+
+# Fallback if mod_rewrite is unavailable: never serve private folders, dotfiles or metadata.
+<IfModule mod_alias.c>
+    RedirectMatch 404 /(src|data|vendor|demo)(/|$)
+    RedirectMatch 404 /\.(?!well-known/)
+    RedirectMatch 404 /(composer\.json|composer\.lock|README\.md)$
+</IfModule>
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
